@@ -2,12 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : SingletonComponent<GameManager>
 {
     [SerializeField] TextMeshProUGUI gooCounter;
     public Bubble bubble;
     public Transform buttonContainer;
+
+    public float timePassed;
+    public int productionTarget;
+
+    [SerializeField] TextMeshProUGUI productionTargetLabel;
 
     private List<BuyButton> buyButtons;
 
@@ -19,6 +25,7 @@ public class GameManager : SingletonComponent<GameManager>
             goo = value;
             gooCounter.text = $"{goo}";
             UpdateButtonVisibility();
+            if (goo > productionTarget) Victory();
         }
         get
         {
@@ -29,7 +36,9 @@ public class GameManager : SingletonComponent<GameManager>
     private void Start()
     {
         buyButtons = new(buttonContainer.GetComponentsInChildren<BuyButton>());
+        timePassed = 0;
         UpdateButtonVisibility();
+        productionTargetLabel.text = $"Production Target: {productionTarget}";
     }
 
 
@@ -44,7 +53,19 @@ public class GameManager : SingletonComponent<GameManager>
     {
         foreach (var buyButton in buyButtons)
         {
-            buyButton.gameObject.SetActive(Goo >= buyButton.gooCost);
+            if (buyButton.GooCost <= Goo)
+            {
+                buyButton.unlocked = true;
+                buyButton.gameObject.SetActive(true);
+                buyButton.GetComponent<Button>().interactable = true;
+                buyButton.GetComponent<TextColorUpdater>().UpdateTextColor(true);
+            }
+            else
+            {
+                buyButton.gameObject.SetActive(buyButton.unlocked);
+                buyButton.GetComponent<Button>().interactable = false;
+                buyButton.GetComponent<TextColorUpdater>().UpdateTextColor(false);
+            }
         }
     }
 
@@ -60,6 +81,32 @@ public class GameManager : SingletonComponent<GameManager>
         );
 
         return orbitPosition;
+    }
+
+    private void Update()
+    {
+        timePassed += Time.deltaTime;
+    }
+
+    public Popup gameOverHeat;
+    public Popup gameOverCold;
+    public Popup victory;
+
+    public void Victory()
+    {
+        Time.timeScale = 0;
+        victory.Show();
+        victory.GetComponent<Timer>().UpdateLabel();
+    }
+
+    public void GameOverHeat()
+    {
+        gameOverHeat.Show();
+    }
+
+    public void GameOverCold()
+    {
+        gameOverCold.Show();
     }
 
 }
