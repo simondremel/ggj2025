@@ -49,9 +49,14 @@ public class GameManager : SingletonComponent<GameManager>
 
     public void SpawnPrefab(float orbitalRadius, GameObject prefab, float orbitalRadiusVariance = 0f)
     {
+        float angle = Random.Range(0f, Mathf.PI * 2);
+
         float radius = orbitalRadius + Random.Range(orbitalRadiusVariance * -1, orbitalRadiusVariance);
-        Vector3 spawnPosition = GetRandomOrbitPosition(bubble.transform.position, radius);
-        Instantiate(prefab, spawnPosition, Quaternion.identity);
+        Vector3 spawnPosition = GetOrbitPosition(angle, bubble.transform.position, radius * 3);
+        GameObject instance = Instantiate(prefab, spawnPosition, Quaternion.identity);
+        WarpDrive warpDrive = instance.GetComponent<WarpDrive>();
+        warpDrive.targetPosition = GetOrbitPosition(angle, bubble.transform.position, radius);
+        warpDrive.Engage();
     }
 
 
@@ -93,10 +98,8 @@ public class GameManager : SingletonComponent<GameManager>
         }
     }
 
-    public Vector3 GetRandomOrbitPosition(Vector3 center, float radius)
+    public Vector3 GetOrbitPosition(float angle, Vector3 center, float radius)
     {
-        float angle = Random.Range(0f, Mathf.PI * 2);
-
         // Calculate the position on the circle
         Vector3 orbitPosition = new Vector3(
             center.x + radius * Mathf.Cos(angle),
