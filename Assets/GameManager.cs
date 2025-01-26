@@ -17,6 +17,8 @@ public class GameManager : SingletonComponent<GameManager>
 
     private List<BuyButton> buyButtons;
 
+    private Dictionary<string, int> itemCount = new();
+
     private int goo;
     public int Goo
     {
@@ -35,6 +37,9 @@ public class GameManager : SingletonComponent<GameManager>
 
     private void Start()
     {
+        itemCount["Injector"] = 0;
+        itemCount["Extractor"] = 0;
+
         buyButtons = new(buttonContainer.GetComponentsInChildren<BuyButton>());
         timePassed = 0;
         UpdateButtonVisibility();
@@ -47,6 +52,25 @@ public class GameManager : SingletonComponent<GameManager>
         float radius = orbitalRadius + Random.Range(orbitalRadiusVariance * -1, orbitalRadiusVariance);
         Vector3 spawnPosition = GetRandomOrbitPosition(bubble.transform.position, radius);
         Instantiate(prefab, spawnPosition, Quaternion.identity);
+    }
+
+
+    [SerializeField] TextMeshProUGUI injectorCounter;
+    [SerializeField] TextMeshProUGUI extractorCounter;
+    public void AddItem(string itemName)
+    {
+        if (!itemCount.ContainsKey(itemName))
+        {
+            itemCount[itemName] = 0;
+        }
+
+        itemCount[itemName]++;
+
+        injectorCounter.text = itemCount["Injector"].ToString() + (itemCount["Injector"] == 1 ? " Injector" : " Injectors");
+        //injectorCounter.gameObject.SetActive(itemCount["Injector"] > 0);
+
+        extractorCounter.text = itemCount["Extractor"].ToString() + (itemCount["Extractor"] == 1 ? " Extractor" : " Extractors");
+        //extractorCounter.gameObject.SetActive(itemCount["Extractor"] > 0);
     }
 
     void UpdateButtonVisibility()

@@ -20,6 +20,7 @@ public class BuyButton : MonoBehaviour
     {
         GameManager.Instance.Goo -= GooCost;
         GameManager.Instance.SpawnPrefab(orbitalRadius, prefab, orbitalRadiusVariance);
+        GameManager.Instance.AddItem(objectName);
         gooCost += costIncrease;
         buttonText.text = $"{objectName} ({GooCost})";
     }
